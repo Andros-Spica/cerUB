@@ -6,8 +6,8 @@
 #'
 #' @param distance_matrix distance or dissimilarity matrix
 #' @param dt data frame containing the original data
-#' @param variable_tags list containing vectors with the numeric index of variables
-#'                of different kind.
+#' @param variable_tags Character, two-column data frame containing (1)
+#'                      the names of variables and (2) their tags.
 #' @param dimensions Numeric, number of dimensions of the projection equivalent to
 #'                   k in \code{\link[stats]{cmdscale}}
 #'
@@ -78,15 +78,25 @@ pcoa <- function(distance_matrix,
   dimnames(pcoa_obj$loadings)[[2]] <- varNames
 
   if (is.null(variable_tags)){
+
     vcod <- names(dt_)
+
   } else {
+
     vcod <- vector()
+
     for (i in 1:ncol(dt_)){
+
       index = match(names(dt_)[i], variable_tags[, 1])
+
       if (!is.na(index)) {
+
         vcod[i] <- variable_tags[, 2][index]
+
       } else {
+
         vcod[i] <- names(dt_)[i]
+
       }
     }
   }
