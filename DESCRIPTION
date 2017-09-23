@@ -1,9 +1,12 @@
 Package: cerUB
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1.0
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Title: Protocols for exploring archaeometric data
+Version: 1.0.0
+Authors@R: c(person("Andreas", "Angourakis", email = "andros.spica@gmail.com", role = c("aut", "cre")), person("Veronica", "Martinez Ferreras", role = "aut"))
+Description: This package allows the user to apply four protocols of multivariate statistics for exploring archaeometric data, including geochemical and mineralogical compositions, and semi-quantitative petrographic characterizations. Protocols wrap several methods used in Geology and Ecology, relying on ade4 and vegan packages.
+License: GPL-3
+URL: https://github.com/Andros-Spica/cerUB
 LazyData: TRUE
+RoxygenNote: 6.0.1
+Imports: ade4, vegan, dbscan, pcaPP, robCompositions, setRNG, stringr
+Suggests: knitr, rmarkdown

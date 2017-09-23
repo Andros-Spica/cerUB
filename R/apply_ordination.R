@@ -1,15 +1,17 @@
-#' Apply protocol for multivariate statistical analysis
+#' Apply ordination procedures for multivariate statistical analysis
 #'
-#' Applies a given multivariate analysis protocol to a data set
+#'#' Applies a given ordination procedure to a data set
 #' and returns a ordination object.
 #'
 #' @param data Data frame, including compositional and petrographic data.
 #' @param protocol Character, cerUB protocol to be applied.
 #'                            "1": Analysis of compositional data;
-#'                            "2a": Analysis of petrographic data (relative ranking);
+#'                            "2a": Analysis of petrographic data (relative ranking difference);
 #'                            "2b": Analysis of petrographic data (neighbor interchange);
-#'                            "3·: Analysis of compositional data and petrographic data (relative ranking);
-#'                            "4": Analysis of compositional data and petrographic data (relative ranking) to characterize provenance
+#'                            "3": Analysis of compositional data and petrographic data
+#'                            (relative ranking);
+#'                            "4": Analysis of compositional data and petrographic data
+#'                            (relative ranking) to characterize provenance.
 #' @param dimensions Numeric, number of dimensions of the ordination object.
 #' @param exception_columns Numeric, the vector of variables names to be
 #'                          searched for exceptions.
@@ -17,13 +19,14 @@
 #'                      the names of variables and (2) their tags.
 #' @param coda_override Character, vector with the names of the
 #'                      compositional variables.
-#' @param coda_transformation Character, the log-ratio transformation
-#'                            to be applied.
-#'                       "ALR" -> additive log-ratio,
-#'                       "CLR" -> centered log-ratio,
-#'                       "ILR" -> isometric log-ratio.
+#' @param coda_transformation_method Character, the log-ratio transformation
+#'                            to be applied:
+#'                       "ALR" for additive log-ratio,
+#'                       "CLR" for centered log-ratio,
+#'                       "ILR" for isometric log-ratio.
 #'                       Additionally, accepts "log" for applying
-#'                       logarithmic transformation and "std" for standardization.
+#'                       logarithmic transformation and "std" for standardization
+#'                       (scaled and centred).
 #' @param coda_alr_base Character/Numeric, the name/index of the variable
 #'                      to be used as divisor in additional log-ratio
 #'                      transformation.
@@ -36,17 +39,19 @@
 #' and variables (loadings) in 'n' dimensions, the distance matrix used
 #' (dist_matrix), and an approximation of the fitness of projections.
 #'
-apply_protocol <- function(data,
-                           protocol,
-                           dimensions = 2,
-                           exception_columns = NULL,
-                           variable_tags = NULL,
-                           coda_override = NULL,
-                           coda_transformation = "CLR",
-                           coda_alr_base = 1,
-                           coda_pca_method = "robust",
-                           init_seed = 0,
-                           coda_samples = 100) {
+#' @export
+#'
+apply_ordination <- function(data,
+                             protocol = "1",
+                             dimensions = 2,
+                             exception_columns = NULL,
+                             variable_tags = NULL,
+                             coda_override = NULL,
+                             coda_transformation_method = "CLR",
+                             coda_alr_base = 1,
+                             coda_pca_method = "robust",
+                             init_seed = 0,
+                             coda_samples = 100) {
 
   if (protocol == "1") {
     #######################################################################
@@ -60,7 +65,7 @@ apply_protocol <- function(data,
       coda_vars <- coda_override
 
     prot1 <- princomp_coda(data[, coda_vars],
-                           transformation = coda_transformation,
+                           transformation_method = coda_transformation_method,
                            method = coda_pca_method,
                            init_seed = init_seed,
                            samples = coda_samples,
@@ -69,8 +74,8 @@ apply_protocol <- function(data,
 
     prot1$name <- "Protocol 1"
 
-    if (coda_transformation == "ALR")
-      prot1$loadings <- prot1$rotation
+    # if (coda_transformation_method == "ALR")
+    #   prot1$loadings <- prot1$rotation
 
     print("Protocol 1 ended.")
 
@@ -101,7 +106,7 @@ apply_protocol <- function(data,
     prot2a <- pcoa(dist2a,
                    data_[, vars_petro],
                    variable_tags,
-                   k = dimensions)
+                   dimensions = dimensions)
 
     prot2a$name <- "Protocol 2a"
 
@@ -137,7 +142,7 @@ apply_protocol <- function(data,
     prot2b <- nmds(dist2b,
                    data_[, vars_petro],
                    variable_tags,
-                   k = dimensions,
+                   dimensions = dimensions,
                    trymax = 1000,
                    init_seed = 0,
                    autotransform = FALSE
@@ -160,11 +165,15 @@ apply_protocol <- function(data,
     #######################################################################
 
     # calculate extended Gower's distance (Pavoine et al. 2009) with exceptions
-    vars_petro <- get_petro(data)
+    data_transformed <- transform_coda(data,
+                                       coda_variables = coda_override,
+                                       method = coda_transformation_method)
 
-    coda_vars <- get_coda(data,
+    vars_petro <- get_petro(data_transformed)
+
+    coda_vars <- get_coda(data_transformed,
                           coda_override,
-                          transformation = coda_transformation)
+                          transformation_method = coda_transformation_method)
 
     vars <- c(vars_petro, coda_vars)
 
@@ -172,9 +181,9 @@ apply_protocol <- function(data,
                           (length(vars_petro) + 1):(length(vars_petro) +
                                                       length(coda_vars)))
 
-    data_ <- order_petro(data)
+    data_transformed <- order_petro(data_transformed)
 
-    dist3 <- extended_gower(data = data[, vars],
+    dist3 <- extended_gower(data = data_transformed[, vars],
                             variable_sets = var_set_index,
                             method = "MM",
                             exception_columns = exception_columns,
@@ -184,13 +193,15 @@ apply_protocol <- function(data,
 
     # pcoa
     prot3 <- pcoa(dist3,
-                  data[, vars],
+                  data_transformed[, vars],
                   variable_tags,
-                  k = dimensions)
+                  dimensions = dimensions)
 
     prot3$name <- "Protocol 3"
 
     prot3$dist_matrix <- dist3
+
+    prot3$transformation_method <- coda_transformation_method
 
     print("Protocol 3 ended.")
 
@@ -205,16 +216,22 @@ apply_protocol <- function(data,
       #######################################################################
 
       # calculate extended Gower's distance (Pavoine et al. 2009) with exceptions
-      vars_indexes <- get_provenance(data,
+      data_transformed <- transform_coda(data,
+                                         coda_variables = coda_override,
+                                         method = coda_transformation_method)
+
+      vars_indexes <- get_provenance(data_transformed,
                                      coda_override,
-                                     transformation = coda_transformation)
+                                     transformation_method = coda_transformation_method)
+
       var_set_index <- list(1:length(vars_indexes[[1]]),
                             (length(vars_indexes[[1]]) + 1):(length(vars_indexes[[1]]) + length(vars_indexes[[2]])))
+
       vars_prov <- c(vars_indexes[[1]], vars_indexes[[2]])
 
-      data_ <- order_petro(data)
+      data_transformed <- order_petro(data_transformed)
 
-      dist4 <- extended_gower(data = data_[, vars_prov],
+      dist4 <- extended_gower(data = data_transformed[, vars_prov],
                               variable_sets = var_set_index,
                               method = "MM",
                               exception_columns = exception_columns,
@@ -224,13 +241,15 @@ apply_protocol <- function(data,
 
       # pcoa
       prot4 <- pcoa(dist4,
-                    data_[, vars_prov],
+                    data_transformed[, vars_prov],
                     variable_tags,
-                    k = dimensions)
+                    dimensions = dimensions)
 
       prot4$name <- "Protocol 4"
 
       prot4$dist_matrix <- dist4
+
+      prot4$transformation_method <- coda_transformation_method
 
       print("Protocol 4 ended.")
 

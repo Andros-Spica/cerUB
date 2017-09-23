@@ -18,9 +18,10 @@
 #'
 #' }
 #'
+#' @export
 replace_na <- function(x,
                        as_na = c(NULL),
-                       method = "NULL") {
+                       method = NULL) {
 
   for (i in 1:length(as_na)) {
 
@@ -31,7 +32,7 @@ replace_na <- function(x,
 
   }
 
-  if (method == "NULL") {
+  if (is.null(method)) {
 
     return(x)
 

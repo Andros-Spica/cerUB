@@ -28,7 +28,7 @@
 #' @param weight Numeric, vector with the weights attributed to every data frame
 #'               included in ktab_data.
 #'
-#'
+#' @export
 dist.ktab_cerUB <- function(ktab_data,
                             variable_classes,
                             option = c("scaledBYrange",
@@ -277,7 +277,7 @@ dist.ktab_cerUB <- function(ktab_data,
             as.data.frame(scale(df, center = cmin, scale = (cmax - cmin)))
 
           if (methodQ == 1) {
-            thedis <- dist.quant(df, method = 1)
+            thedis <- ade4::dist.quant(df, method = 1)
 
           }
 
@@ -712,7 +712,7 @@ dist.ktab_cerUB <- function(ktab_data,
 
       if (!any(is.na(df))) {
         if (methodQ == 1) {
-          thedis <- dist.quant(df, method = methodQ)
+          thedis <- ade4::dist.quant(df, method = methodQ)
 
         }
 
@@ -1319,13 +1319,13 @@ dist.ktab_cerUB <- function(ktab_data,
 
           res <-
             lapply(lis, function(u)
-              dist.prop(u, method = methodF))
+              ade4::dist.prop(u, method = methodF))
 
         else
 
           res <-
             lapply(lis, function(u)
-              dist.prop(u, method = methodF) ^ 2)
+              ade4::dist.prop(u, method = methodF) ^ 2)
 
         mat <- res[[1]]
 
@@ -1364,12 +1364,12 @@ dist.ktab_cerUB <- function(ktab_data,
           if (methodF != 3 & methodF != 4)
 
             resdis <-
-            as.matrix(dist.prop(dfsansna, method = methodF))
+            as.matrix(ade4::dist.prop(dfsansna, method = methodF))
 
           else
 
             resdis <-
-            as.matrix(dist.prop(dfsansna, method = methodF) ^ 2)
+            as.matrix(ade4::dist.prop(dfsansna, method = methodF) ^ 2)
 
           res[!positions,!positions] <- as.vector(resdis)
 
@@ -1498,7 +1498,7 @@ dist.ktab_cerUB <- function(ktab_data,
 
       if (!any(is.na(ktab_data[[i]]))) {
         res <- lapply(lis, function(u)
-          dist.binary(u, method = methodB) ^ 2)
+          ade4::dist.binary(u, method = methodB) ^ 2)
 
         if (any(is.na(unlist(res))))
 
@@ -1539,7 +1539,7 @@ dist.ktab_cerUB <- function(ktab_data,
           dfsansna <- mtbin[!positions,]
 
           resdis <-
-            as.matrix(dist.binary(dfsansna, method = methodB) ^ 2)
+            as.matrix(ade4::dist.binary(dfsansna, method = methodB) ^ 2)
 
           res[!positions,!positions] <- as.vector(resdis)
 

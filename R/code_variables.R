@@ -7,10 +7,10 @@
 #' @param data A petrographic data frame
 #' using cerUB naming system.
 #'
+#' @export
 code_variables <- function(data) {
 
   # replace variables names with codes
-  require(stringr)
   nI = 1
   nF = 1
   nV = 1
@@ -34,17 +34,17 @@ code_variables <- function(data) {
       varCode[i] <- paste("F", nF, sep = "")
       nF = nF + 1
 
-    } else if (str_detect(names(data)[i], "VOID_")) {
+    } else if (stringr::str_detect(names(data)[i], "VOID_")) {
 
       varCode[i] <- paste("V", nV, sep = "")
       nV = nV + 1
 
-    } else if (str_detect(names(data)[i], "COAR_")) {
+    } else if (stringr::str_detect(names(data)[i], "COAR_")) {
 
       varCode[i] <- paste("L", nL, sep = "")
       nL = nL + 1
 
-    } else if (str_detect(names(data)[i], "FINE_")) {
+    } else if (stringr::str_detect(names(data)[i], "FINE_")) {
 
       varCode[i] <- paste("S", nS, sep = "")
       nS = nS + 1
@@ -56,6 +56,6 @@ code_variables <- function(data) {
     }
   }
 
-  varCodes <- cbind(names(data), varCode)
+  varCodes <- cbind("Variable name" = names(data), "Variable code" = varCode)
   return(varCodes)
 }

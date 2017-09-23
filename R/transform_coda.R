@@ -10,7 +10,8 @@
 #'                       "CLR" -> centered log-ratio,
 #'                       "ILR" -> isometric log-ratio.
 #'                       Additionally, accepts "log" for applying
-#'                       logarithmic transformation and "std" for standardization.
+#'                       logarithmic transformation and "std" for standardization
+#'                       (scaled and centred).
 #' @param alr_base Character/Numeric, the name/index of the variable to be used
 #'                 as divisor in additional log-ratio transformation.
 #'                 in additive log-ratio transformation.
@@ -18,7 +19,7 @@
 #'                 saving the raw (complete), tranformed (only coda), and
 #'                 final (complete) data sets.
 #'
-#'
+#' @export
 transform_coda <- function(data,
                            coda_variables,
                            method = c("CLR"),
@@ -82,7 +83,7 @@ transform_coda <- function(data,
         }
         if (trans == "ILR") {
 
-          data_chem_trans <- data.frame(robCompositions::isomLR(data_chem))
+          data_chem_trans <- data.frame(robCompositions::pivotCoord(data_chem))
           names(data_chem_trans) <-
             gsub("X", "ILR-", names(data_chem_trans))
 
@@ -115,14 +116,4 @@ transform_coda <- function(data,
 
   return(data)
 
-}
-
-buildOrthBasis <- function(x) {
-  V <- matrix(0, nrow = ncol(x), ncol = ncol(x) - 1)
-  for (i in 1:ncol(V)) {
-    V[1:i, i] <- 1 / i
-    V[i + 1, i] <- (-1)
-    V[, i] <- V[, i] * sqrt(i / (i + 1))
-  }
-  return(V)
 }

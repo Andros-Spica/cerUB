@@ -3,33 +3,35 @@
 #' Principal Components Analysis (PCA) of compositional data
 #' after applying log-ratio transformation.
 #'
-#' @param dt data frame containing compositional data
-#' @param transformation Character, the log-ratio transformation to be applied.
+#' @param dt Data frame containing compositional data
+#' @param transformation_method Character, the log-ratio transformation to be applied.
 #'                       "ALR" -> additive log-ratio,
 #'                       "CLR" -> centered log-ratio,
 #'                       "ILR" -> isometric log-ratio.
 #'                       Additionally, accepts "log" for applying
-#'                       logarithmic transformation and "std" for standardization.
+#'                       logarithmic transformation and "std" for standardization
+#'                       (scaled and centred).
 #' @param method Character, "standard" for standard PCA, "robust" for robust PCA.
 #' @param init_seed Numeric, the seed for the random number generator used in
-#'                  \code{\link[cerUB]{best_pcaCoDa}}).
+#'                  \code{\link{best_pcaCoDa}}).
 #' @param samples Numeric, the number of iterations applying to samples in
-#'                \code{\link[cerUB]{best_pcaCoDa}}) and
+#'                \code{\link{best_pcaCoDa}}) and
 #'                maxiter in \code{\link[pcaPP]{PCAgrid}}).
 #' @param alr_base Character/Numeric, the name/index of the variable to be used
 #'                 as divisor in additional log-ratio transformation.
 #'
+#' @export
 princomp_coda <- function(dt,
-                          transformation = "ILR",
+                          transformation_method = "ILR",
                           method = "robust",
                           init_seed = 0,
                           samples = 100,
                           alr_base = 1) {
-  logratio_data <- NULL
+  transformed_data <- NULL
   pca_return <- NULL
 
-  if (transformation == "ILR") {
-    logratio_data <- robCompositions::pivotCoord(dt)
+  if (transformation_method == "ILR") {
+    transformed_data <- robCompositions::pivotCoord(dt)
 
     if (method == "robust" && nrow(dt) > ncol(dt)) {
       pca_return <- best_pcaCoDa(dt,
@@ -54,16 +56,16 @@ princomp_coda <- function(dt,
 
   } else
 
-    if (transformation == "CLR") {
-      logratio_data <- cenLR(dt)
+    if (transformation_method == "CLR") {
+      transformed_data <- robCompositions::cenLR(dt)
 
       if (method == "standard") {
-        pca_return <- prcomp(logratio_data$x.clr)
+        pca_return <- prcomp(transformed_data$x.clr)
 
       } else {
-        dimensions <- ncol(logratio_data$x.clr)
+        dimensions <- ncol(transformed_data$x.clr)
 
-        pca_return <- pcaPP::PCAgrid(logratio_data$x.clr,
+        pca_return <- pcaPP::PCAgrid(transformed_data$x.clr,
                                      k = dimensions,
                                      maxiter = samples)
 
@@ -71,7 +73,7 @@ princomp_coda <- function(dt,
 
     } else
 
-      if (transformation == "ALR") {
+      if (transformation_method == "ALR") {
         alr_base_ <- alr_base
 
         if (is.character(alr_base))
@@ -81,34 +83,38 @@ princomp_coda <- function(dt,
         if (is.na(alr_base_))
           stop("ERROR: the alr_base given is not present in the data.")
 
-        logratio_data <- addLR(dt,
+        transformed_data <- robCompositions::addLR(dt,
                                ivar = alr_base_)
 
         if (method == "standard") {
-          pca_return <- prcomp(logratio_data$x.alr)
+          pca_return <- prcomp(transformed_data$x.alr)
 
         } else {
-          dimensions <- ncol(logratio_data$x.alr)
+          dimensions <- ncol(transformed_data$x.alr)
 
-          pca_return <- pcaPP::PCAgrid(logratio_data$x.alr,
+          pca_return <- pcaPP::PCAgrid(transformed_data$x.alr,
                                        k = dimensions,
                                        maxiter = samples)
+
         }
 
         pca_return$base <- names(dt)[alr_base_]
 
       } else
 
-        if (transformation == "log") {
-          log_data <- log(dt)
+        if (transformation_method == "log") {
+
+          transformed_data <- data.frame(log(dt))
+          names(transformed_data) <-
+            paste("log-", names(dt), sep = "")
 
           if (method == "standard") {
-            pca_return <- prcomp(log_data)
+            pca_return <- prcomp(transformed_data)
 
           } else {
-            dimensions <- ncol(log_data)
+            dimensions <- ncol(transformed_data)
 
-            pca_return <- pcaPP::PCAgrid(log_data,
+            pca_return <- pcaPP::PCAgrid(transformed_data,
                                          k = dimensions,
                                          maxiter = samples)
 
@@ -116,29 +122,34 @@ princomp_coda <- function(dt,
 
         } else
 
-          if (transformation == "std") {
-            std_data <- scale(dt)
+          if (transformation_method == "std") {
+
+            transformed_data <- data.frame(scale(dt))
+            names(transformed_data) <-
+              paste("std-", names(dt), sep = "")
 
             if (method == "standard") {
-              pca_return <- prcomp(std_data)
+              pca_return <- prcomp(transformed_data)
 
             } else {
-              dimensions <- ncol(std_data)
+              dimensions <- ncol(transformed_data)
 
-              pca_return <- pcaPP::PCAgrid(std_data,
+              pca_return <- pcaPP::PCAgrid(transformed_data,
                                            k = dimensions,
                                            maxiter = samples)
             }
 
           } else {
             stop(
-              "The transformation selected is not valid. Please select one of the following: 'ALR', 'CLR', 'ILR', 'log', 'std'."
+              "The transformation_method selected is not valid. Please select one of the following: 'ALR', 'CLR', 'ILR', 'log', 'std'."
             )
 
           }
 
   pca_var <-
     cumsum((pca_return$sdev) ^ 2) / sum(pca_return$sdev ^ 2)
+  if (transformation_method == "ILR")
+    pca_var <- cumsum((pca_return$princompOutputClr$sdev) ^ 2) / sum(pca_return$princompOutputClr$sdev ^ 2)
 
   pca_return$sub2D <-
     paste(as.character(100 * round(pca_var[2], digits = 4)),
@@ -150,27 +161,40 @@ princomp_coda <- function(dt,
           "% of variance explained",
           sep = "")
 
-  print(pca_return$sub2D)
-  print(pca_return$sub3D)
+  print(paste(pca_return$sub2D, "in 2D"))
+  print(paste(pca_return$sub3D, "in 3D"))
 
-  pca_return$transformation <- transformation
+  pca_return$transformation_method <- transformation_method
 
   pca_return$method <- method
 
-  pca_return$logratio_data <- logratio_data
+  pca_return$transformed_data <- transformed_data
 
-  if (transformation == "CLR")
-    logratio_data <- logratio_data$x.clr
+  if (transformation_method == "CLR")
+    transformed_data <- transformed_data$x.clr
 
-  if (transformation == "ALR")
-    logratio_data <- logratio_data$x.alr
+  if (transformation_method == "ALR")
+    transformed_data <- transformed_data$x.alr
 
-  pca_return$dist_matrix <- dist(logratio_data)
+  pca_return$dist_matrix <- dist(transformed_data)
 
   return(pca_return)
 
 }
 
+#' Find the best 'pcaCoDa' (robCompositions)
+#'
+#' Searches the best projection given by \code{\link[robCompositions]{pcaCoDa}}.
+#'
+#' @param dt Data frame containing compositional data
+#' @param method Character, "standard" for standard PCA, "robust" for robust PCA.
+#' @param init_seed Numeric, the seed for the random number generator used in
+#'                  \code{\link{best_pcaCoDa}}).
+#' @param samples Numeric, the number of iterations applying to samples in
+#'                \code{\link{best_pcaCoDa}}) and
+#'                maxiter in \code{\link[pcaPP]{PCAgrid}}).
+#'
+#' @export
 best_pcaCoDa <- function(dt,
                          method = "robust",
                          init_seed = 0,

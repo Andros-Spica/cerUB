@@ -5,21 +5,30 @@
 #' 2D and 3D projections.
 #'
 #' @param distance_matrix distance or dissimilarity matrix
-#' @param dt data frame containing the original data
+#' @param original_data data frame containing the original data
 #' @param variable_tags Character, two-column data frame containing (1)
 #'                      the names of variables and (2) their tags.
 #' @param dimensions Numeric, number of dimensions of the projection equivalent to
-#'                   k in \code{\link[vegan]{metaMDS}}
+#'                   k in \code{\link[vegan]{metaMDS}}.
+#' @param init_seed Numeric, the seed for the random number generator
+#'                  used by \code{\link[vegan]{metaMDS}}.
+#' @param trymax,autotransform Numeric, Maximum number of random starts in search of
+#'                   stable solution. Logical, whether to use simple heuristics for
+#'                   possible data transformation of typical community data (see below).
+#'                   If you do not have community data, you should probably set
+#'                   autotransform = FALSE.
+#'                   Arguments passed to \code{\link[vegan]{metaMDS}}.
 #'
+#' @export
 nmds<-function(distance_matrix,
-               dt,
+               original_data,
                variable_tags = c(),
                dimensions = 2,
-               trymax = 100,
                init_seed = 0,
+               trymax = 100,
                autotransform = FALSE) {
 
-  setRNG::set.seed(init_seed)
+  set.seed(init_seed)
 
   nmds_obj <- vegan::metaMDS(distance_matrix,
                              k = dimensions,
@@ -37,7 +46,7 @@ nmds<-function(distance_matrix,
 
   # variance explained by the first two dimensions found
   new_distance_matrix <- dist(nmds_obj$points[, 1:2], diag = TRUE, upper = TRUE)
-  r <- cor(c(dist), c(new_distance_matrix))
+  r <- cor(c(distance_matrix), c(new_distance_matrix))
   rSquared <- r * r
 
   nmds_obj$sub2D <- paste(as.character(100 * round(rSquared, digits = 4)),
@@ -50,13 +59,12 @@ nmds<-function(distance_matrix,
 
   nmds_obj$GOF2_2D <- cbind(rSquared, Fvalue, p_value)
 
-  print(nmds_obj$sub2D)
-  print(nmds_obj$GOF2_2D)
+  print(paste(nmds_obj$sub2D, "in 2D"))
 
   if (dimensions > 2) {
     # variance explained by the first three dimensions found
     new_distance_matrix <- dist(nmds_obj$points[, 1:3], diag = TRUE, upper = TRUE)
-    r <- cor(c(dist), c(new_distance_matrix))
+    r <- cor(c(distance_matrix), c(new_distance_matrix))
     rSquared <- r * r
 
     nmds_obj$sub3D <- paste(as.character(100 * round(rSquared, digits = 4)),
@@ -69,48 +77,47 @@ nmds<-function(distance_matrix,
 
     nmds_obj$GOF2_3D <- cbind(rSquared, Fvalue, p_value)
 
-    print(nmds_obj$sub3D)
-    print(nmds_obj$GOF2_3D)
+    print(paste(nmds_obj$sub3D, "in 3D"))
   }
 
   # calculate covariance axis vs. variables
-  dt<-data.frame(data.matrix(dt))
+  original_data_ranks <- data.frame(data.matrix(original_data))
   transrank <- function(u){
     return(rank(u, na.last = "keep"))
   }
-  dt <- apply(dt, 2, transrank)
+  original_data_ranks <- apply(original_data_ranks, 2, transrank)
 
-  covmat <- cov(cbind(dt,nmds_obj$points), use = "complete.obs")
+  covmat <- cov(cbind(original_data_ranks, nmds_obj$points), use = "complete.obs")
 
-  nmds_obj$loadings <- covmat[1:ncol(dt), (ncol(dt) + 1):ncol(covmat)]
+  nmds_obj$loadings <- covmat[1:ncol(original_data_ranks), (ncol(original_data_ranks) + 1):ncol(covmat)]
 
   varNames <- vector()
 
-  for (i in (ncol(dt) + 1):ncol(covmat)){
-    varNames <- c(varNames, paste("MDS", i - ncol(dt), sep = "-"))
+  for (i in (ncol(original_data_ranks) + 1):ncol(covmat)){
+    varNames <- c(varNames, paste("MDS", i - ncol(original_data_ranks), sep = "-"))
   }
 
   dimnames(nmds_obj$loadings)[[2]] <- varNames
 
   if (is.null(variable_tags)) {
 
-    vcod <- names(dt)
+    vcod <- names(original_data)
 
   } else {
 
     vcod <- vector()
 
-    for (i in 1:ncol(dt)) {
+    for (i in 1:ncol(original_data)) {
 
-      index = match(names(dt)[i], variable_tags[,1])
+      index = match(names(original_data)[i], variable_tags[, 1])
 
       if (!is.na(index)) {
 
-        vcod[i] <- variable_tags[,2][index]
+        vcod[i] <- variable_tags[, 2][index]
 
       } else {
 
-        vcod[i] <- names(dt)[i]
+        vcod[i] <- names(original_data)[i]
 
       }
     }
@@ -118,7 +125,7 @@ nmds<-function(distance_matrix,
 
   dimnames(nmds_obj$loadings)[[1]] <- vcod
 
-  nmds_obj$variable_tags <- cbind(names(dt), vcod)
+  nmds_obj$variable_tags <- cbind(names(original_data), vcod)
 
   return(nmds_obj)
 }

@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+inst/doc
+transformed_CoDa/

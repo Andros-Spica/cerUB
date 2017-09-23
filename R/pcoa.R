@@ -5,14 +5,15 @@
 #' 2D and 3D projections.
 #'
 #' @param distance_matrix distance or dissimilarity matrix
-#' @param dt data frame containing the original data
+#' @param original_data data frame containing the original data
 #' @param variable_tags Character, two-column data frame containing (1)
 #'                      the names of variables and (2) their tags.
 #' @param dimensions Numeric, number of dimensions of the projection equivalent to
 #'                   k in \code{\link[stats]{cmdscale}}
 #'
+#' @export
 pcoa <- function(distance_matrix,
-                 dt,
+                 original_data,
                  variable_tags = NULL,
                  dimensions = 2) {
 
@@ -38,8 +39,7 @@ pcoa <- function(distance_matrix,
 
   pcoa_obj$GOF2_2D <- cbind(r_squared, f_value, p_value)
 
-  print(pcoa_obj$sub2D)
-  print(pcoa_obj$GOF2_2D)
+  print(paste(pcoa_obj$sub2D, "in 2D"))
 
   if (dimensions > 2) {
     # variance explained by the first three dimensions found
@@ -57,37 +57,37 @@ pcoa <- function(distance_matrix,
 
     pcoa_obj$GOF2_3D <- cbind(r_squared, f_value, p_value)
 
-    print(pcoa_obj$sub3D)
-    print(pcoa_obj$GOF2_3D)
+    print(paste(pcoa_obj$sub3D, "in 3D"))
   }
 
   # calculate covariance axis vs. variables
-  dt_ <- data.frame(data.matrix(dt))
+  original_data_ranks <- data.frame(data.matrix(original_data))
   transrank <- function(u){ return(rank(u, na.last = "keep")) }
-  dt_ <- apply(dt_, 2, transrank)
+  original_data_ranks <- apply(original_data_ranks, 2, transrank)
 
-  covmat <- cov(cbind(dt_, pcoa_obj$points), use = "pairwise.complete.obs")
+  covmat <- cov(cbind(original_data_ranks, pcoa_obj$points),
+                use = "pairwise.complete.obs")
 
-  pcoa_obj$loadings <- covmat[1:ncol(dt_), (ncol(dt_) + 1):ncol(covmat)]
+  pcoa_obj$loadings <- covmat[1:ncol(original_data_ranks), (ncol(original_data_ranks) + 1):ncol(covmat)]
 
   varNames <- vector()
-  for (i in (ncol(dt_) + 1):ncol(covmat)){
-    varNames <- c(varNames, paste("PCo", i - ncol(dt_), sep = "-"))
+  for (i in (ncol(original_data_ranks) + 1):ncol(covmat)){
+    varNames <- c(varNames, paste("PCo", i - ncol(original_data_ranks), sep = "-"))
   }
 
   dimnames(pcoa_obj$loadings)[[2]] <- varNames
 
   if (is.null(variable_tags)){
 
-    vcod <- names(dt_)
+    vcod <- names(original_data)
 
   } else {
 
     vcod <- vector()
 
-    for (i in 1:ncol(dt_)){
+    for (i in 1:ncol(original_data)){
 
-      index = match(names(dt_)[i], variable_tags[, 1])
+      index = match(names(original_data)[i], variable_tags[, 1])
 
       if (!is.na(index)) {
 
@@ -95,7 +95,7 @@ pcoa <- function(distance_matrix,
 
       } else {
 
-        vcod[i] <- names(dt_)[i]
+        vcod[i] <- names(original_data)[i]
 
       }
     }
@@ -103,7 +103,7 @@ pcoa <- function(distance_matrix,
 
   dimnames(pcoa_obj$loadings)[[1]] <- vcod
 
-  pcoa_obj$variable_tags <- cbind(names(dt_), vcod)
+  pcoa_obj$variable_tags <- cbind(names(original_data), vcod)
 
   return(pcoa_obj)
 }

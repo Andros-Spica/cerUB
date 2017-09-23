@@ -1,2 +1,8 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^protocol scripts$
+^Protocol_1 - geochemical data$
+^Protocol_2 - petrographic data$
+^Protocol_3 - petrographic data$
+^Protocol_4 - provenance data$
+^Protocol_4 - provenance data with shipwrecks$

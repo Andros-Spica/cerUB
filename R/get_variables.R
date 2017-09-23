@@ -5,6 +5,7 @@
 #' @param data Data frame containing petrographic variables that use the
 #'             cerUB naming system.
 #'
+#' @export
 get_petro <- function(data) {
   indexVector <- c()
 
@@ -42,6 +43,7 @@ get_petro <- function(data) {
 #'                                         Additionally, accepts "log" for applying
 #'                                         logarithmic transformation.
 #'
+#' @export
 get_coda <- function(data, coda_variables, transformation_method = "") {
 
   indexVector <- c()
@@ -50,7 +52,7 @@ get_coda <- function(data, coda_variables, transformation_method = "") {
     coda_variables <- names(data[, coda_variables])
 
   for (i in 1:ncol(data)) {
-    for (j in 1:length(geochemVars)) {
+    for (j in 1:length(coda_variables)) {
       if (names(data)[i] == paste(transformation_method,
                                   coda_variables[j], sep = "-") ||
           names(data)[i] == paste(transformation_method,
@@ -84,6 +86,7 @@ get_coda <- function(data, coda_variables, transformation_method = "") {
 #' @return List of two numeric vectors containing the column indexes of (1)
 #' petrographic and (2) compositional variables.
 #'
+#' @export
 get_provenance <- function(data, coda_variables, transformation_method = "") {
 
   indexVectorOrdinal <- c()
@@ -105,9 +108,9 @@ get_provenance <- function(data, coda_variables, transformation_method = "") {
 
       for (j in 1:length(coda_variables)) {
         if (names(data)[i] == paste(transformation_method,
-                                    geochemVars[j], sep = "-") ||
+                                    coda_variables[j], sep = "-") ||
             names(data)[i] == paste(transformation_method,
-                                    geochemVars[j], sep = "")) {
+                                    coda_variables[j], sep = "")) {
           indexVectorContinuos <- c(indexVectorContinuos, i)
         }
       }

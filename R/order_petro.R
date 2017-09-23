@@ -4,6 +4,7 @@
 #'
 #' @param data Data frame containing petrographic ordinal variables that use the cerUB naming system.
 #'
+#' @export
 order_petro <- function(data){
 
   ### put values in proper order
@@ -15,7 +16,8 @@ order_petro <- function(data){
 
   ord_inclorient<-c("unparallel", "slightly parallel", "parallel", "none")
   ord_incldistrib<-c("poorly", "poorly to moderately", "moderately", "moderately to well", "well", "none")
-  ord_temp<-c("unfired", "700-800ºC", "800-900ºC", "900-1000ºC", "1000-1100ºC")
+  ord_temp<-c("unfired", "700-800oC", "800-900oC", "900-1000oC", "1000-1100oC")
+
   ord_comp<-c("none", "few", "common", "frequent", "dominant", "predominant")
   ord_comp2<-c("none", "few", "frequent", "predominant")
   ord_freq<-c("none", "very few", "few", "common", "abundant", "very abundant")
@@ -27,7 +29,7 @@ order_petro <- function(data){
   ord_grain2<-c("none","very fine silt","very fine to fine silt","fine silt","fine to medium silt","medium silt","medium to coarse silt","coarse silt","coarse silt to very fine sand")
 
   if ("FABRIC_PROTOTYPE" %in% names(data)){
-    data$CLAY <-factor(data$CLAY, levels=ord_clay)
+    data$FABRIC_PROTOTYPE <-factor(data$FABRIC_PROTOTYPE, levels=ord_fabprot)
   }
   if ("CLAY" %in% names(data)){
     data$CLAY <-factor(data$CLAY, levels=ord_clay)

@@ -1,6 +1,8 @@
 #' Clean and format data for cerUB protocols
 #'
-#' Cleaning and format procedures, including coercing variables as numeric or factor, excluding columns (incomplete data, constant) and rows ().
+#' Cleaning and format procedures, including coercing variables as numeric or factor,
+#' excluding columns (constants, perturbed, unreliable) and rows (incomplete data,
+#' outliers).
 #'
 #' @param data Data frame, a data frame to be prepared for applying cerUB protocols.
 #' @param categorical_columns Character/Numeric, vector with the names/indexes of the categorical variables.
@@ -36,6 +38,7 @@
 #'
 #' }
 #'
+#' @export
 clean_and_format <- function(data,
                              categorical_columns = c(),
                              numerical_columns = c(),
@@ -55,13 +58,17 @@ clean_and_format <- function(data,
 
   # format categorical data
   for (v in categorical_columns) {
-    data[, v] <- as.factor(data[, v])
+    data[, v] <- factor(data[, v])
   }
 
   # filter incomplete characterization (only if the variable is present)
-  if(!is.null(data[, completion_variable[1]])){
-    data <- subset(data,
-                   data[, completion_variable[1]] == completion_variable[2])
+  if (!is.null(completion_variable)) {
+    if (!is.null(data[, completion_variable[1]])) {
+      data <- subset(data,
+                     data[, completion_variable[1]] == completion_variable[2])
+    } else {
+      warning("Completion variable not recognized. The argument must be a vector with the name of the variable and the character value indicating completion.")
+    }
   }
 
   # filter observations (rows)
@@ -81,7 +88,6 @@ clean_and_format <- function(data,
   ## numeric data
   for (v in numerical_columns){
     data[, v] <- replace_na(data[, v],
-                            as_na = as_na,
                             method = method)
   }
 

@@ -17,7 +17,7 @@
 #' @param exception_distance Numeric, the index of the variable to be used as
 #'                           divisor in additive log-ratio transformation.
 #'
-#'
+#' @export
 extended_gower <- function(data,
                            variable_sets,
                            method = "RRD",
@@ -52,48 +52,49 @@ extended_gower <- function(data,
   # prepare list separate variable sets
   list_variable_sets <- list()
   for (i in 1:length(variable_sets)){
-    list_variable_sets[[i]] <- data[,variable_sets[[i]]]
+    list_variable_sets[[i]] <- data_[,variable_sets[[i]]]
   }
+
   ktab1 <- ade4::ktab.list.df(list_variable_sets)
 
   # calculate distance
   if(method == "NI"){
 
     dist_matrix <- dist.ktab_cerUB(ktab1,
-                                   type = c("O"),
+                                   variable_classes = c("O"),
                                    option = "scaledBYrange",
                                    scann = F,
                                    dist.excep = exception_distance,
-                                   type = "Protocol_2")
+                                   is_protocol2b = TRUE)
 
   } else if(method == "RRD"){
 
     dist_matrix <- dist.ktab_cerUB(ktab1,
-                                   type = c("O"),
+                                   variable_classes = c("O"),
                                    option = "scaledBYrange",
                                    scann = F,
                                    dist.excep = exception_distance,
-                                   type = "Protocol_3")
+                                   is_protocol2b = FALSE)
 
-    if (!is.euclid(dist_matrix)) {
+    if (!ade4::is.euclid(dist_matrix)) {
       # Lingoes transformation (1971)
-      dist_matrix <- lingoes(dist_matrix)
+      dist_matrix <- ade4::lingoes(dist_matrix)
       print("Lingoes transformation done.")
     }
 
   } else if(method == "MM") {
 
     dist_matrix <- dist.ktab_cerUB(ktab1,
-                                   type=c("O", "Q"),
+                                   variable_classes = c("O", "Q"),
                                    option = "scaledBYrange",
                                    scann = F,
                                    dist.excep = exception_distance,
-                                   type = "Protocol_4",
+                                   is_protocol2b = FALSE,
                                    weight = c(.5, .5))
 
-    if (!is.euclid(dist_matrix)) {
+    if (!ade4::is.euclid(dist_matrix)) {
       # Lingoes transformation (1971)
-      dist_matrix_euc <- lingoes(dist_matrix)
+      dist_matrix_euc <- ade4::lingoes(dist_matrix)
       print("Lingoes transformation done.")
     }
 
