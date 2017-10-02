@@ -40,10 +40,10 @@ test_groups <- function(distMatrix, groups){
     equalsOrLess <- function(pvalue) {
 
       pvalue = as.character(round(pvalue, 3))
-      symbol = paste("\n                      (p = ", pvalue, ")", sep = "")
+      symbol = paste("\n                         (p = ", pvalue, ")", sep = "")
 
       if (pvalue <= 0.001)
-        symbol = expression(paste("\n                      (p ",
+        symbol = expression(paste("\n                         (p ",
                                   ""<="", " 0.001", ")",
                                   sep = ""))
 
