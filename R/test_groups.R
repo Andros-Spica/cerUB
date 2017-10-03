@@ -46,7 +46,7 @@ test_groups <- function(distMatrix, groups){
     par1_line1 <- "PERMANOVA:"
     par1_line2 <- paste("   F = ", permanova.F, sep = "")
     #firstSet <- paste("PERMANOVA:\n   F = ", permanova.F, sep = "")
-    if (permanova.p_value == "0.001") {
+    if (permanova.p_value == "0.001)") {
       par1_line2 <- bquote(.(par1_line2) ~ "(p" <= "0.001)")
     } else {
       par1_line2 <- bquote(.(par1_line2) ~ "(p" == .(permanova.p_value))
@@ -56,7 +56,7 @@ test_groups <- function(distMatrix, groups){
 
     par2_line1 <- "PERMDISP2:"
     par2_line2 <- paste("   F = ", permdisp2.F, sep = "")
-    if (permdisp2.p_value <= "0.001") {
+    if (permdisp2.p_value <= "0.001)") {
       par2_line2 <- bquote(.(par2_line2) ~ "(p" <= "0.001)")
     } else {
       par2_line2 <- bquote(.(par2_line2) ~ "(p" == .(permdisp2.p_value))
