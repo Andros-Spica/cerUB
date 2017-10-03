@@ -1,7 +1,7 @@
 #' Detect outliers
 #'
 #' Detects outliers in a distance matrix using a certain method and
-#' following a certain criterium.
+#' following a certain criterion.
 #'
 #' @param distMatrix Numeric, distance matrix
 #' @param method Character, method for measuring separation of one point
@@ -11,16 +11,16 @@
 #'                          "MD": average (mean) distance;
 #'                          "MAH": Mahalanobis distances (\code{\link[robCompositions]{outCoDa}});
 #'                          "LOF": Local Outlier Factor Score (\code{\link[dbscan]{lof}}).
-#' @param criterium Numeric/Character, the criterium used for separating outliers.
+#' @param criterion Numeric/Character, the criterion used for separating outliers.
 #'                          The following are accepted:
 #'                          <Numeric, 0-1>: number between 0 and 1, sets a quantile type of threshold;
 #'                          "boxplot": outliers are those singled out as points in a boxplot;
 #'                          "MAD": threshold is given by Median Absolute Deviation.
 #' @param LOF_k Numeric, when method = "LOF", the size of the neighborhood.
 #'                       See \code{\link[dbscan]{lof}}.
-#' @param MAD_trim Numeric, when criterium = "MAD", the multipler of MAD
+#' @param MAD_trim Numeric, when criterion = "MAD", the multipler of MAD
 #'                          to calculate a outlier threshold.
-#' @param boxplot_trim Numeric, when criterium = "boxplot", the multipler of
+#' @param boxplot_trim Numeric, when criterion = "boxplot", the multipler of
 #'                          the interquartile range (IQR) to calculate a outlier
 #'                          threshold.
 #'
@@ -32,10 +32,10 @@
 #'
 #' irisOutliers_MD <- detect_outliers(dist(iris[, 1:4]),
 #'                                    method = "MD",
-#'                                    criterium = "MAD")
+#'                                    criterion = "MAD")
 #' irisOutliers_LOF <- detect_outliers(dist(iris[, 1:4]),
 #'                                    method = "LOF",
-#'                                    criterium = "MAD")
+#'                                    criterion = "MAD")
 #' plot(pca$scores[, 1:2], col = "black", main = "Outliers")
 #' points(pca$scores[irisOutliers_MD$index, 1:2],
 #'        col = "red", pch = 2, cex = 1.5)
@@ -49,7 +49,7 @@
 #' @export
 detect_outliers <- function(distMatrix,
                             method = "MD",
-                            criterium = "MAD",
+                            criterion = "MAD",
                             LOF_k = 2,
                             MAD_trim = 2,
                             boxplot_trim = 1.5) {
@@ -72,13 +72,13 @@ detect_outliers <- function(distMatrix,
 
       probs = 0.975
 
-      if (is.numeric(criterium)) {
+      if (is.numeric(criterion)) {
 
-        probs = criterium
+        probs = criterion
 
       } else {
 
-        warning("criterium must be numeric when applying mah method. The default 0.975 was used (see quantile in outCoDa{robCompositions})")
+        warning("criterion must be numeric when applying mah method. The default 0.975 was used (see quantile in outCoDa{robCompositions})")
 
       }
 
@@ -128,22 +128,22 @@ detect_outliers <- function(distMatrix,
 
       }
 
-      # trim (generate index) using the criterium given
+      # trim (generate index) using the criterion given
       # if numeric (it is a quantile threshold:
-      if (is.numeric(criterium)) {
+      if (is.numeric(criterion)) {
 
-        uif = quantile(scores, probs = criterium)
+        uif = quantile(scores, probs = criterion)
 
       }
       # if "boxplot", values singled out as points in a boxplot are selected
-      else if (criterium == "boxplot") {
+      else if (criterion == "boxplot") {
 
         uif = quantile(scores, probs = .75) + boxplot_trim * IQR(scores)
         outliers$boxplot_trim <- boxplot_trim
 
       }
       # if "MAD", threshold is given by Median Absolute Deviation
-      else if (criterium == "MAD") {
+      else if (criterion == "MAD") {
 
         uif = median(scores) + MAD_trim * mad(scores)
         outliers$MAD_trim <- MAD_trim
@@ -163,7 +163,7 @@ detect_outliers <- function(distMatrix,
 
   names(outliers$index) <- row.names(m)
   outliers$method <- method
-  outliers$criterium <- criterium
+  outliers$criterion <- criterion
 
   return(outliers)
 }
@@ -171,7 +171,7 @@ detect_outliers <- function(distMatrix,
 #' Detect outliers per group
 #'
 #' Detects outliers per each group in a distance matrix using a certain method and
-#' following a certain criterium.
+#' following a certain criterion.
 #'
 #' @param distMatrix Numeric, distance matrix
 #' @param groups Factor, vector containing the assignation of each observation
@@ -183,16 +183,16 @@ detect_outliers <- function(distMatrix,
 #'                          "MD": average (mean) distance;
 #'                          "MAH": Mahalanobis distances (\code{\link[robCompositions]{outCoDa}});
 #'                          "LOF": Local Outlier Factor Score (\code{\link[dbscan]{lof}}).
-#' @param criterium Numeric/Character, the criterium used for separating outliers.
+#' @param criterion Numeric/Character, the criterion used for separating outliers.
 #'                          The following are accepted:
 #'                          <Numeric, 0-1>: number between 0 and 1, sets a quantile type of threshold;
 #'                          "boxplot": outliers are those singled out as points in a boxplot;
 #'                          "MAD": threshold is given by Median Absolute Deviation.
 #' @param LOF_k Numeric, when method = "LOF", the size of the neighborhood.
 #'                       See \code{\link[dbscan]{lof}}.
-#' @param MAD_trim Numeric, when criterium = "MAD", the multipler of MAD
+#' @param MAD_trim Numeric, when criterion = "MAD", the multipler of MAD
 #'                          to calculate a outlier threshold.
-#' @param boxplot_trim Numeric, when criterium = "boxplot", the multipler of
+#' @param boxplot_trim Numeric, when criterion = "boxplot", the multipler of
 #'                          the interquartile range (IQR) to calculate a outlier
 #'                          threshold.
 #'
@@ -205,11 +205,11 @@ detect_outliers <- function(distMatrix,
 #' irisSpeciesOutliers_MD <- detect_outliers_per_group(dist(iris[, 1:4]),
 #'                                                     iris$Species,
 #'                                                     method = "MD",
-#'                                                     criterium = "MAD")
+#'                                                     criterion = "MAD")
 #' irisSpeciesOutliers_LOF <- detect_outliers_per_group(dist(iris[, 1:4]),
 #'                                                      iris$Species,
 #'                                                      method = "LOF",
-#'                                                      criterium = "MAD")
+#'                                                      criterion = "MAD")
 #' plot(pca$scores[, 1:2],
 #'     col = iris$Species,
 #'     main = "Outliers per group")
@@ -226,7 +226,7 @@ detect_outliers <- function(distMatrix,
 detect_outliers_per_group <- function(distMatrix,
                                       groups,
                                       method = "MD",
-                                      criterium = "MAD",
+                                      criterion = "MAD",
                                       LOF_k = 2,
                                       MAD_trim = 2,
                                       boxplot_trim = 1.5) {
@@ -258,7 +258,7 @@ detect_outliers_per_group <- function(distMatrix,
 
     out <- detect_outliers(group.dist,
                            method = method,
-                           criterium = criterium,
+                           criterion = criterion,
                            LOF_k = LOF_k,
                            MAD_trim = MAD_trim,
                            boxplot_trim = boxplot_trim)
