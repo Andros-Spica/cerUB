@@ -37,37 +37,36 @@ test_groups <- function(distMatrix, groups){
 
   x$text <- function(tests){
 
-    equalsOrLess <- function(pvalue) {
-
-      pvalue = as.character(round(pvalue, 3))
-      symbol = paste("\n                         (p = ", pvalue, ")", sep = "")
-
-      if (pvalue <= 0.001)
-        symbol = expression(paste("\n                         (p ",
-                                  ""<="", " 0.001", ")",
-                                  sep = ""))
-
-      return(symbol)
-    }
-
     permanova.F = as.character(round(tests$permanova$aov.tab$F.Model[1], 3))
-    permanova.p_value = as.character(round(tests$permanova$aov.tab$"Pr(>F)"[1], 3))
-    permanova.equals = equalsOrLess(tests$permanova$aov.tab$"Pr(>F)"[1])
+    permanova.p_value = paste(as.character(round(tests$permanova$aov.tab$"Pr(>F)"[1], 3)), ")", sep = "")
     permanova.rSquared = as.character(round(tests$permanova$aov.tab$R2[1], 3))
     permdisp2.F = as.character(round(tests$permdisp2$tab$F[1], 3))
-    permdisp2.p_value = as.character(round(tests$permdisp2$tab$"Pr(>F)"[1], 3))
-    permdisp2.equals = equalsOrLess(tests$permdisp2$tab$"Pr(>F)"[1])
-    text <- list(c(paste("PERMANOVA:\n   F = ", permanova.F, sep = ""),
-                   permanova.equals),
-                 c(expression(paste("   ", R^2, " = ", sep = "")),
-                   paste("            ", permanova.rSquared,
-                         sep = "")),
-                 c(paste("PERMDISP2:\n   F = ", permdisp2.F, sep = ""),
-                       permdisp2.equals)
-    )
-    #" (p ", permanova.equals, " ", permanova.p_value, ")",
-    #" (p ", permdisp2.equals, " ", permdisp2.p_value,")",
+    permdisp2.p_value = paste(as.character(round(tests$permdisp2$tab$"Pr(>F)"[1], 3)), ")", sep = "")
 
+    par1_line1 <- "PERMANOVA:"
+    par1_line2 <- paste("   F = ", permanova.F, sep = "")
+    #firstSet <- paste("PERMANOVA:\n   F = ", permanova.F, sep = "")
+    if (permanova.p_value == "0.001") {
+      par1_line2 <- bquote(.(par1_line2) ~ "(p" <= "0.001)")
+    } else {
+      par1_line2 <- bquote(.(par1_line2) ~ "(p" == .(permanova.p_value))
+    }
+
+    par1_line3 <- bquote("  " ~ R^2 == .(permanova.rSquared))
+
+    par2_line1 <- "PERMDISP2:"
+    par2_line2 <- paste("   F = ", permdisp2.F, sep = "")
+    if (permdisp2.p_value <= "0.001") {
+      par2_line2 <- bquote(.(par2_line2) ~ "(p" <= "0.001)")
+    } else {
+      par2_line2 <- bquote(.(par2_line2) ~ "(p" == .(permdisp2.p_value))
+    }
+
+    text <- list(c(par1_line1,
+                   as.expression(par1_line2),
+                   as.expression(par1_line3)),
+                 c(par2_line1,
+                   as.expression(par2_line2)))
 
     return(text)
   }
