@@ -5,7 +5,7 @@
 \title{Detect outliers per group}
 \usage{
 detect_outliers_per_group(distMatrix, groups, method = "MD",
-  criterium = "MAD", LOF_k = 2, MAD_trim = 2, boxplot_trim = 1.5)
+  criterion = "MAD", LOF_k = 2, MAD_trim = 2, boxplot_trim = 1.5)
 }
 \arguments{
 \item{distMatrix}{Numeric, distance matrix}
@@ -21,7 +21,7 @@ The following are accepted:
 "MAH": Mahalanobis distances (\code{\link[robCompositions]{outCoDa}});
 "LOF": Local Outlier Factor Score (\code{\link[dbscan]{lof}}).}
 
-\item{criterium}{Numeric/Character, the criterium used for separating outliers.
+\item{criterion}{Numeric/Character, the criterion used for separating outliers.
 The following are accepted:
 <Numeric, 0-1>: number between 0 and 1, sets a quantile type of threshold;
 "boxplot": outliers are those singled out as points in a boxplot;
@@ -30,16 +30,16 @@ The following are accepted:
 \item{LOF_k}{Numeric, when method = "LOF", the size of the neighborhood.
 See \code{\link[dbscan]{lof}}.}
 
-\item{MAD_trim}{Numeric, when criterium = "MAD", the multipler of MAD
+\item{MAD_trim}{Numeric, when criterion = "MAD", the multipler of MAD
 to calculate a outlier threshold.}
 
-\item{boxplot_trim}{Numeric, when criterium = "boxplot", the multipler of
+\item{boxplot_trim}{Numeric, when criterion = "boxplot", the multipler of
 the interquartile range (IQR) to calculate a outlier
 threshold.}
 }
 \description{
 Detects outliers per each group in a distance matrix using a certain method and
-following a certain criterium.
+following a certain criterion.
 }
 \examples{
 
@@ -50,11 +50,11 @@ pca <- princomp(iris[, 1:4])
 irisSpeciesOutliers_MD <- detect_outliers_per_group(dist(iris[, 1:4]),
                                                     iris$Species,
                                                     method = "MD",
-                                                    criterium = "MAD")
+                                                    criterion = "MAD")
 irisSpeciesOutliers_LOF <- detect_outliers_per_group(dist(iris[, 1:4]),
                                                      iris$Species,
                                                      method = "LOF",
-                                                     criterium = "MAD")
+                                                     criterion = "MAD")
 plot(pca$scores[, 1:2],
     col = iris$Species,
     main = "Outliers per group")
