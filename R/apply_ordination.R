@@ -74,9 +74,6 @@ apply_ordination <- function(data,
 
     prot1$name <- "Protocol 1"
 
-    # if (coda_transformation_method == "ALR")
-    #   prot1$loadings <- prot1$rotation
-
     print("Protocol 1 ended.")
 
     return(prot1)

@@ -61,6 +61,7 @@ princomp_coda <- function(dt,
 
       if (method == "standard") {
         pca_return <- prcomp(transformed_data$x.clr)
+        names(pca_return)[names(pca_return) == "rotation"] <- "loadings"
 
       } else {
         dimensions <- ncol(transformed_data$x.clr)
@@ -88,6 +89,7 @@ princomp_coda <- function(dt,
 
         if (method == "standard") {
           pca_return <- prcomp(transformed_data$x.alr)
+          names(pca_return)[names(pca_return) == "rotation"] <- "loadings"
 
         } else {
           dimensions <- ncol(transformed_data$x.alr)
@@ -110,6 +112,7 @@ princomp_coda <- function(dt,
 
           if (method == "standard") {
             pca_return <- prcomp(transformed_data)
+            names(pca_return)[names(pca_return) == "rotation"] <- "loadings"
 
           } else {
             dimensions <- ncol(transformed_data)
@@ -130,6 +133,7 @@ princomp_coda <- function(dt,
 
             if (method == "standard") {
               pca_return <- prcomp(transformed_data)
+              names(pca_return)[names(pca_return) == "rotation"] <- "loadings"
 
             } else {
               dimensions <- ncol(transformed_data)
