@@ -60,8 +60,7 @@ princomp_coda <- function(dt,
       transformed_data <- robCompositions::cenLR(dt)
 
       if (method == "standard") {
-        pca_return <- prcomp(transformed_data$x.clr)
-        names(pca_return)[names(pca_return) == "rotation"] <- "loadings"
+        pca_return <- princomp(transformed_data$x.clr)
 
       } else {
         dimensions <- ncol(transformed_data$x.clr)
@@ -88,8 +87,8 @@ princomp_coda <- function(dt,
                                ivar = alr_base_)
 
         if (method == "standard") {
-          pca_return <- prcomp(transformed_data$x.alr)
-          names(pca_return)[names(pca_return) == "rotation"] <- "loadings"
+          pca_return <- princomp(transformed_data$x.alr)
+
 
         } else {
           dimensions <- ncol(transformed_data$x.alr)
@@ -111,8 +110,7 @@ princomp_coda <- function(dt,
             paste("log-", names(dt), sep = "")
 
           if (method == "standard") {
-            pca_return <- prcomp(transformed_data)
-            names(pca_return)[names(pca_return) == "rotation"] <- "loadings"
+            pca_return <- princomp(transformed_data)
 
           } else {
             dimensions <- ncol(transformed_data)
@@ -132,8 +130,7 @@ princomp_coda <- function(dt,
               paste("std-", names(dt), sep = "")
 
             if (method == "standard") {
-              pca_return <- prcomp(transformed_data)
-              names(pca_return)[names(pca_return) == "rotation"] <- "loadings"
+              pca_return <- princomp(transformed_data)
 
             } else {
               dimensions <- ncol(transformed_data)
