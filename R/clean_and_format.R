@@ -52,13 +52,17 @@ clean_and_format <- function(data,
   # "complete" is the boolean indicating if output needs to have the petrological characterization complete
 
   # format numeric data
-  for (v in numerical_columns) {
-    data[, v] <- as.numeric(as.character(data[, v]))
+  if (!is.null(numerical_columns)) {
+    for (v in numerical_columns) {
+      data[, v] <- as.numeric(as.character(data[, v]))
+    }
   }
 
   # format categorical data
-  for (v in categorical_columns) {
-    data[, v] <- factor(data[, v])
+  if (!is.null(categorical_columns)) {
+    for (v in categorical_columns) {
+      data[, v] <- factor(data[, v])
+    }
   }
 
   # filter incomplete characterization (only if the variable is present)
@@ -72,28 +76,36 @@ clean_and_format <- function(data,
   }
 
   # filter observations (rows)
-  for (i in 1:length(rows_to_exclude)){
-    data <- subset(data,
-                   row.names(data) != rows_to_exclude[i])
+  if (!is.null(rows_to_exclude)) {
+    for (i in 1:length(rows_to_exclude)){
+      data <- subset(data,
+                     row.names(data) != rows_to_exclude[i])
+    }
   }
 
   # replace Nas
   ## categorical data
-  for (v in categorical_columns){
-    data[, v] <- replace_na(data[, v],
-                            as_na = as_na,
-                            method = method)
+  if (!is.null(categorical_columns)) {
+    for (v in categorical_columns){
+      data[, v] <- replace_na(data[, v],
+                              as_na = as_na,
+                              method = method)
+    }
   }
 
   ## numeric data
-  for (v in numerical_columns){
-    data[, v] <- replace_na(data[, v],
-                            method = method)
+  if (!is.null(numerical_columns)) {
+    for (v in numerical_columns){
+      data[, v] <- replace_na(data[, v],
+                              method = method)
+    }
   }
 
   # exclude variables in "columns_to_exclude"
-  for (i in columns_to_exclude){
-    data <- data[, names(data) != i]
+  if (!is.null(columns_to_exclude)) {
+    for (i in columns_to_exclude){
+      data <- data[, names(data) != i]
+    }
   }
 
   # filter constant variables
