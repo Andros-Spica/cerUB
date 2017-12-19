@@ -40,11 +40,16 @@ replace_na <- function(x,
 
   if (class(x) == "character" | class(x) == "factor") {
 
-    variableLevels <- levels(!is.na(x))
+    variableLevels <- levels(x[!is.na(x)])
+    variableLevels <- variableLevels[variableLevels != as_na]
 
     if (method == "random") {
 
-      x[is.na(x)] <- sample(variableLevels, 1)
+      if (length(variableLevels) > 1) {
+
+        x[is.na(x)] <- sample(variableLevels, 1)
+
+      }
 
     } else if (method == "mode") {
 

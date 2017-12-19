@@ -4,10 +4,9 @@
 \alias{clean_and_format}
 \title{Clean and format data for cerUB protocols}
 \usage{
-clean_and_format(data, categorical_columns = c(), numerical_columns = c(),
-  completion_variable = c("CHARAC", "complete"), as_na = c(NULL),
-  method = "random", columns_to_exclude = c("variableNameToExclude"),
-  rows_to_exclude = c("outlierObservation"))
+clean_and_format(data, categorical_columns = NULL, numerical_columns = NULL,
+  completion_variable = NULL, as_na = NULL, method = NULL,
+  columns_to_exclude = NULL, rows_to_exclude = NULL)
 }
 \arguments{
 \item{data}{Data frame, a data frame to be prepared for applying cerUB protocols.}
@@ -16,7 +15,7 @@ clean_and_format(data, categorical_columns = c(), numerical_columns = c(),
 
 \item{numerical_columns}{Character/Numeric, vector with the names/indexes of the numeric variables.}
 
-\item{completion_variable}{Character, vector with two elements (name, value) referencing the column that indicates wheter observations (rows) are completed.}
+\item{completion_variable}{Character, vector with two elements (name, value) referencing the column that indicates wheter observations (rows) are completed. For instance, \code{c("isCompleted", "yes")}.}
 
 \item{as_na}{Character, vector that specifies values to be considered as NA.}
 
@@ -35,23 +34,23 @@ outliers).
 
 \dontrun{
 
-dt <- cbind("First" = c(1,2,2,3,5,1,6,0,4,10),
-            "Second" = c("A","A","A","A","A","A","A","A","A","A"),
-            "Third" = c("1","2","2","3","5","1","6","0","4","10"),
-            "Fourth" = c("A","B","C","D","E","F","G","H","I","J"),
-            "dummy" = c("bla","ble","bli","blo","blu","bla","ble",
-                        "bli","blo","blu"),
-            "checked" = c("yes","yes","no","yes","no","yes","yes",
-                          "no","yes","yes"))
+dt <- data.frame("First" = c(1,2,2,3,5,1,6,0,4,10),
+                 "Second" = c("A","A","A","A","A","A","A","A","A","A"),
+                 "Third" = c("1","2","2","3","5","1","6","0","4","10"),
+                 "Fourth" = c("A","B","C","D","E","F","G","H","I","J"),
+                 "dummy" = c("bla","ble","bli","blo","blu","bla","ble",
+                             "bli","blo","blu"),
+                 "checked" = c("yes","yes","no","yes","no","yes","yes",
+                               "no","yes","yes"))
 row.names(dt) <- 1:10
-claen_and_format(dt,
-                 categorical_columns = c("Second", "Fourth"),
-                 numerical_columns = c("First", "Third"),
-                 completion_variable = "checked",
-                 as_na = c("0","D"),
-                 method = "random",
-                 columns_to_exclude = c("dummy"),
-                 rows_to_exclude = c(1, 10)
+dt_clean <- clean_and_format(dt,
+                             categorical_columns = c("Second", "Fourth"),
+                             numerical_columns = c("First", "Third"),
+                             completion_variable = c("checked","yes"),
+                             as_na = c("D"),
+                             method = "random",
+                             columns_to_exclude = c("dummy"),
+                             rows_to_exclude = c(1, 10)
                  )
 
 }
