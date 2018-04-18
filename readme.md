@@ -1,5 +1,19 @@
 # cerUB: Multivariate statistic protocols for integrating archaeometric data (geochemical, mineralogical, petrographic)
 
+This package allows the user to apply four protocols of multivariate statistics for exploring archaeometric data, including geochemical and mineralogical compositions, and semi-quantitative petrographic characterizations. Protocols wrap several methods used in Geology and Ecology, relying on ade4 and vegan packages.
+
+Tested in Windows 7 and Mac OS X 10.9.5.
+
+Dependencies (packages you must install before installing cerUB):
+
+* ade4
+* vegan
+* dbscan
+* pcaPP
+* robCompositions
+* setRNG
+* stringr
+
 ## How to cite
 
 If you use this package, cite it like this:
