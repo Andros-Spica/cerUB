@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/91143992.svg)](https://zenodo.org/badge/latestdoi/91143992)
+
 # cerUB: Multivariate statistic protocols for integrating archaeometric data (geochemical, mineralogical, petrographic)
 
 This package allows the user to apply four protocols of multivariate statistics for exploring archaeometric data, including geochemical and mineralogical compositions, and semi-quantitative petrographic characterizations. Protocols wrap several methods used in Geology and Ecology, relying on ade4 and vegan packages.
